@@ -1,27 +1,98 @@
 package nvlled.imageviewer;
 
-import javax.swing.*;
-import javax.imageio.*;
 import java.io.*;
 import java.awt.*;
+import javax.swing.*;
+import javax.imageio.*;
+import java.nio.file.FileSystems;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.util.regex.*;
 
 public class ImageViewer extends JFrame {
     private static final int DEFAULT_SCROLL_STEP = 50;
 
-    private ImagePanel currentImage;
-    private JScrollPane scrollPane;
+    private String imageDir;
+    private String[] filenames;
+
     private Point scrollOffset;
+    private JScrollPane scrollPane;
+    private ImagePanel currentImage;
     int scrollStep = DEFAULT_SCROLL_STEP;
 
-    public ImageViewer() { }
+    private int imgIndex = 0;
 
-    public void setCurrentImage(Image img) {
-        currentImage = new ImagePanel(img);
+    private IOException lastError;
+
+    private Pattern imageFilenamePattern =
+        Pattern.compile("^.+\\.(jpe?g|png|bmp|gif)$");
+
+    public ImageViewer(String imageDir) throws IOException {
+        this.imageDir = imageDir;
+        File file = new File(imageDir);
+        if (!file.isDirectory()) {
+            throw new IOException(imageDir + " is not a directory");
+        }
+        filenames = listImages(file);
+
+        currentImage = new ImagePanel();
         scrollPane = new JScrollPane(currentImage);
-        add(scrollPane);
-
         JViewport vport = scrollPane.getViewport();
         scrollOffset = vport.getViewPosition();
+
+        add(scrollPane);
+    }
+
+    public ImageViewer() throws IOException {
+        this(".");
+    }
+
+    public void loadCurrent() {
+        setCurrentImage(imgIndex);
+    }
+
+    public boolean setCurrentImage(int index) {
+        if (index >= 0 && index < filenames.length) {
+            String filename = filenames[index];
+            File file = FileSystems
+                    .getDefault()
+                    .getPath(imageDir, filename)
+                    .toFile();
+            try {
+                setImage(null);
+                repaint();
+
+                Image img = ImageIO.read(file);
+                setImage(img);
+            } catch (IOException e) {
+                lastError = e;
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    public void setImage(Image img) {
+        currentImage.setImage(img);
+        currentImage.revalidate();
+        scrollPane.repaint();
+    }
+
+    public void firstImage() { setCurrentImage(0); }
+    public void lastImage() { setCurrentImage(filenames.length-1); }
+
+    public void nextImage() {
+        if (imgIndex < filenames.length) {
+            imgIndex++;
+            loadCurrent();
+        }
+    }
+
+    public void prevImage() {
+        if (imgIndex > 0) {
+            imgIndex--;
+            loadCurrent();
+        }
     }
 
     public void zoomIn() {
@@ -74,5 +145,22 @@ public class ImageViewer extends JFrame {
         } else if (p.getY()+extSize.getHeight() > viewSize.getHeight()) {
             p.y = (int) (viewSize.getHeight() - extSize.getHeight());
         }
+    }
+
+    private String[] listImages(File file) {
+        File[] files = file.listFiles(new FileFilter() {
+            Pattern pat = imageFilenamePattern;
+            public boolean accept(File file) {
+                boolean isImage = pat.matcher(file.getName()).matches();
+                return file.isFile() && isImage;
+            }
+        });
+        String[] filenames = new String[files.length];
+        for (int i = 0; i < files.length; i++) {
+            System.out.println(">" + files[i].getName());
+            filenames[i] = files[i].getName();
+        }
+
+        return filenames;
     }
 }

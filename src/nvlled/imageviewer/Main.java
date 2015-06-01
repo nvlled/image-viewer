@@ -1,28 +1,44 @@
 package nvlled.imageviewer;
 
-import javax.swing.*;
-import javax.imageio.*;
 import java.io.*;
 import java.awt.*;
+import javax.swing.*;
+import javax.imageio.*;
 import java.awt.event.*;
 
+// TODO: Improve image loading
 public class Main {
+    private static ImageViewer imgViewer;
     public static void main(String[] args) throws Exception {
-        Image img = ImageIO.read(new File("test.png"));
+        SwingUtilities.invokeAndWait(new Runnable() {
+            public void run() {
+                try {
+                    imgViewer = new ImageViewer();
+                } catch (IOException e) {
+                    throw new RuntimeException("fuck you");
+                }
+            }
+        });
+        imgViewer.loadCurrent();
 
-        // TODO: use invokeLater thingy
-        final ImageViewer imgViewer = new ImageViewer();
-        imgViewer.setCurrentImage(img);
-
-        imgViewer.setVisible(true);
+        imgViewer.setLocationByPlatform(true);
         imgViewer.setExtendedState(JFrame.MAXIMIZED_BOTH);
         imgViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        imgViewer.setVisible(true);
 
         imgViewer.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 String kcode = KeyEvent.getKeyText(e.getKeyCode());
                 switch (e.getKeyCode()) {
+                    case KeyEvent.VK_N:
+                    case KeyEvent.VK_SPACE:
+                        imgViewer.nextImage();
+                        break;
+                    case KeyEvent.VK_P:
+                        imgViewer.prevImage();
+                        break;
+
                     case KeyEvent.VK_EQUALS:
                         imgViewer.zoomIn();
                         break;

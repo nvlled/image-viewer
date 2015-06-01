@@ -4,22 +4,34 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ImagePanel extends JPanel {
-    Image image;
+    private static final double DEFAULT_ZOOM_STEP = 0.1;
 
-    double scale;
-    double zoomStep;
-    int width;
-    int height;
+    double scale = 1;
+    double zoomStep = DEFAULT_ZOOM_STEP;
+
+    Image image;
+    int width = 0;
+    int height = 0;
     Dimension dimension;
 
+
+    public ImagePanel() {
+        dimension = new Dimension();
+    }
+
     public ImagePanel(Image img) {
-        image = img;
-        scale = 1;
-        zoomStep = 0.1;
-        width = img.getWidth(null)+1;
-        height = img.getHeight(null)+1;
-        dimension = new Dimension(width, height);
-        setPreferredSize(dimension);
+        setImage(img);
+    }
+
+
+    public void setImage(Image image) {
+        this.image = image;
+        if (image != null) {
+            width = image.getWidth(null)+1;
+            height = image.getHeight(null)+1;
+            dimension = new Dimension(width, height);
+            setPreferredSize(dimension);
+        }
     }
 
     public int getWidth() {
@@ -45,6 +57,8 @@ public class ImagePanel extends JPanel {
 
     @Override
     public void paintComponent(Graphics g_) {
+        if (image == null)
+            return;
         Graphics2D g = (Graphics2D) g_;
         int w = getWidth();
         int h = getHeight();
