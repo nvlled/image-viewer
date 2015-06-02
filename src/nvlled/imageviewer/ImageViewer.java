@@ -27,15 +27,6 @@ public class ImageViewer extends JFrame {
     private ImageLoader imageLoader;
 
     public ImageViewer(String imageDir) throws IOException {
-        this.imageDir = imageDir;
-        imageLoader = new ImageLoader();
-
-        File file = new File(imageDir);
-        if (!file.isDirectory()) {
-            throw new IOException(imageDir + " is not a directory");
-        }
-        filenames = listImages(file);
-
         currentImage = new ImagePanel();
         scrollPane = new JScrollPane(currentImage);
         JViewport vport = scrollPane.getViewport();
@@ -46,6 +37,34 @@ public class ImageViewer extends JFrame {
         setLayout(new BorderLayout());
         add(scrollPane, BorderLayout.CENTER);
         add(statusMessage, BorderLayout.SOUTH);
+
+        setupMenuBar();
+
+        openDirectory(imageDir);
+    }
+
+    public void openFile(String filename) throws IOException {
+        imageDir = "";
+        imageLoader = new ImageLoader();
+        filenames = new String[] { filename };
+        loadCurrent();
+    }
+
+    public void openDirectory(File file) throws IOException {
+        if (!file.isDirectory()) {
+            throw new IOException(imageDir + " is not a directory");
+        }
+        filenames = listImages(file);
+        loadCurrent();
+    }
+
+    public void openDirectory(String imageDir) throws IOException {
+        this.imageDir = imageDir;
+        imageLoader = new ImageLoader();
+        File file = new File(imageDir);
+        openDirectory(file);
+    }
+
     }
 
     public ImageViewer() throws IOException {
@@ -74,7 +93,7 @@ public class ImageViewer extends JFrame {
             clearStatusMessage();
         } catch (IOException e) {
             lastError = e;
-            setStatusMessage(e.toString());
+            setStatusMessage(getFilename(index) + ": " + e.getMessage());
             return false;
         }
         return true;

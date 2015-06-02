@@ -7,7 +7,6 @@ import javax.imageio.*;
 import java.awt.event.*;
 import java.util.concurrent.*;
 
-// TODO: Improve image loading
 public class Main {
     private static ImageViewer imgViewer;
 
