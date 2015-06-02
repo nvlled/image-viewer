@@ -89,7 +89,7 @@ public class ImageViewer extends JFrame {
 
     public void setImage(Image img) {
         currentImage.setImage(img);
-        currentImage.revalidate();
+        scrollPane.revalidate();
         scrollPane.repaint();
     }
 

@@ -10,6 +10,12 @@ import java.util.concurrent.*;
 // TODO: Improve image loading
 public class Main {
     private static ImageViewer imgViewer;
+
+    private static Dimension getScreenSize() {
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        return kit.getScreenSize();
+    };
+
     public static void main(String[] args) throws Exception {
         SwingUtilities.invokeAndWait(new Runnable() {
             public void run() {
@@ -18,14 +24,17 @@ public class Main {
                 } catch (IOException e) {
                     throw new RuntimeException("censored message");
                 }
+
+                Dimension screen = getScreenSize();
+                imgViewer.setSize((int) screen.getWidth()*3/4, (int) screen.getHeight()*3/4);
+
+                imgViewer.setLocationByPlatform(true);
+                imgViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                imgViewer.setVisible(true);
+
+                imgViewer.loadCurrent();
             }
         });
-        imgViewer.loadCurrent();
-
-        imgViewer.setLocationByPlatform(true);
-        imgViewer.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        imgViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        imgViewer.setVisible(true);
 
         final Executor exec = Executors.newCachedThreadPool();
 
