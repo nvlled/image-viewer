@@ -5,6 +5,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.imageio.*;
 import java.awt.event.*;
+import java.util.concurrent.*;
 
 // TODO: Improve image loading
 public class Main {
@@ -26,6 +27,8 @@ public class Main {
         imgViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         imgViewer.setVisible(true);
 
+        final Executor exec = Executors.newCachedThreadPool();
+
         imgViewer.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -33,10 +36,14 @@ public class Main {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_N:
                     case KeyEvent.VK_SPACE:
-                        imgViewer.nextImage();
+                        exec.execute(new Runnable() {
+                            public void run() { imgViewer.nextImage(); }
+                        });
                         break;
                     case KeyEvent.VK_P:
-                        imgViewer.prevImage();
+                        exec.execute(new Runnable() {
+                            public void run() { imgViewer.prevImage(); }
+                        });
                         break;
 
                     case KeyEvent.VK_EQUALS:

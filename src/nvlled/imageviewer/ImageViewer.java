@@ -17,14 +17,12 @@ public class ImageViewer extends JFrame {
     private Point scrollOffset;
     private JScrollPane scrollPane;
     private ImagePanel currentImage;
-    int scrollStep = DEFAULT_SCROLL_STEP;
+    private JLabel statusMessage;
 
+    int scrollStep = DEFAULT_SCROLL_STEP;
     private int imgIndex = 0;
 
     private IOException lastError;
-
-    private Pattern imageFilenamePattern =
-        Pattern.compile("^.+\\.(jpe?g|png|bmp|gif)$");
 
     public ImageViewer(String imageDir) throws IOException {
         this.imageDir = imageDir;
@@ -39,7 +37,11 @@ public class ImageViewer extends JFrame {
         JViewport vport = scrollPane.getViewport();
         scrollOffset = vport.getViewPosition();
 
-        add(scrollPane);
+        statusMessage = new JLabel(" ");
+
+        setLayout(new BorderLayout());
+        add(scrollPane, BorderLayout.CENTER);
+        add(statusMessage, BorderLayout.SOUTH);
     }
 
     public ImageViewer() throws IOException {
@@ -47,10 +49,10 @@ public class ImageViewer extends JFrame {
     }
 
     public void loadCurrent() {
-        setCurrentImage(imgIndex);
+        loadImage(imgIndex);
     }
 
-    public boolean setCurrentImage(int index) {
+    public boolean loadImage(int index) {
         if (index >= 0 && index < filenames.length) {
             String filename = filenames[index];
             File file = FileSystems
@@ -58,13 +60,13 @@ public class ImageViewer extends JFrame {
                     .getPath(imageDir, filename)
                     .toFile();
             try {
-                setImage(null);
-                repaint();
-
+                setStatusMessage("loading image...");
                 Image img = ImageIO.read(file);
                 setImage(img);
+                clearStatusMessage();
             } catch (IOException e) {
                 lastError = e;
+                setStatusMessage(e.toString());
             }
 
             return true;
@@ -72,17 +74,24 @@ public class ImageViewer extends JFrame {
         return false;
     }
 
+    private void setStatusMessage(String msg) {
+        statusMessage.setText(msg);
+        statusMessage.repaint();
+    }
+
+    private void clearStatusMessage() { setStatusMessage(" "); }
+
     public void setImage(Image img) {
         currentImage.setImage(img);
         currentImage.revalidate();
         scrollPane.repaint();
     }
 
-    public void firstImage() { setCurrentImage(0); }
-    public void lastImage() { setCurrentImage(filenames.length-1); }
+    public void firstImage() { loadImage(0); }
+    public void lastImage() { loadImage(filenames.length-1); }
 
     public void nextImage() {
-        if (imgIndex < filenames.length) {
+        if (imgIndex < filenames.length - 1) {
             imgIndex++;
             loadCurrent();
         }
@@ -148,10 +157,11 @@ public class ImageViewer extends JFrame {
     }
 
     private String[] listImages(File file) {
+        final Pattern filePattern  = Pattern.compile("^.+\\.(jpe?g|png|bmp|gif)$");
+
         File[] files = file.listFiles(new FileFilter() {
-            Pattern pat = imageFilenamePattern;
             public boolean accept(File file) {
-                boolean isImage = pat.matcher(file.getName()).matches();
+                boolean isImage = filePattern.matcher(file.getName()).matches();
                 return file.isFile() && isImage;
             }
         });
