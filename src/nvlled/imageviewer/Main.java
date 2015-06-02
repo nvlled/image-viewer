@@ -7,6 +7,8 @@ import javax.imageio.*;
 import java.awt.event.*;
 import java.util.concurrent.*;
 
+// TODO: add fancy handrawn toolbar
+// TODO: next project: shitty handrawn solitaire
 public class Main {
     private static ImageViewer imgViewer;
 

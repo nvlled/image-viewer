@@ -54,17 +54,26 @@ public class ImageViewer extends JFrame {
         if (!file.isDirectory()) {
             throw new IOException(imageDir + " is not a directory");
         }
+        this.imageDir = file.getAbsolutePath();
         filenames = listImages(file);
         loadCurrent();
     }
 
     public void openDirectory(String imageDir) throws IOException {
-        this.imageDir = imageDir;
         imageLoader = new ImageLoader();
         File file = new File(imageDir);
         openDirectory(file);
     }
 
+    private void setupMenuBar() {
+        ViewerActions actions = new ViewerActions(this);
+
+        JMenuBar mbar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.add(actions.openFile);
+        fileMenu.add(actions.exit);
+        mbar.add(fileMenu);
+        setJMenuBar(mbar);
     }
 
     public ImageViewer() throws IOException {
