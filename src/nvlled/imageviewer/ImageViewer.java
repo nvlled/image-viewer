@@ -7,6 +7,7 @@ import javax.imageio.*;
 import java.nio.file.FileSystems;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.util.regex.*;
+import java.nio.file.Paths;
 
 public class ImageViewer extends JFrame {
     private static final int DEFAULT_SCROLL_STEP = 50;
@@ -23,9 +24,12 @@ public class ImageViewer extends JFrame {
     private int imgIndex = 0;
 
     private IOException lastError;
+    private ImageLoader imageLoader;
 
     public ImageViewer(String imageDir) throws IOException {
         this.imageDir = imageDir;
+        imageLoader = new ImageLoader();
+
         File file = new File(imageDir);
         if (!file.isDirectory()) {
             throw new IOException(imageDir + " is not a directory");
@@ -52,26 +56,28 @@ public class ImageViewer extends JFrame {
         loadImage(imgIndex);
     }
 
-    public boolean loadImage(int index) {
+    public String getFilename(int index) {
         if (index >= 0 && index < filenames.length) {
-            String filename = filenames[index];
-            File file = FileSystems
-                    .getDefault()
-                    .getPath(imageDir, filename)
-                    .toFile();
-            try {
-                setStatusMessage("loading image...");
-                Image img = ImageIO.read(file);
-                setImage(img);
-                clearStatusMessage();
-            } catch (IOException e) {
-                lastError = e;
-                setStatusMessage(e.toString());
-            }
-
-            return true;
+            return Paths.get(imageDir, filenames[index]).toString();
         }
-        return false;
+        return "";
+    }
+
+    public boolean loadImage(int index) {
+        try {
+            setStatusMessage("loading image...");
+            Image img = imageLoader.load(getFilename(index));
+            imageLoader.preload(getFilename(index-1));
+            imageLoader.preload(getFilename(index+1));
+
+            setImage(img);
+            clearStatusMessage();
+        } catch (IOException e) {
+            lastError = e;
+            setStatusMessage(e.toString());
+            return false;
+        }
+        return true;
     }
 
     private void setStatusMessage(String msg) {
@@ -127,10 +133,6 @@ public class ImageViewer extends JFrame {
 
     public void scroll(int dx, int dy) {
         JViewport vport = scrollPane.getViewport();
-
-        System.out.println(vport.getExtentSize());
-        System.out.println(vport.getViewRect());
-        System.out.println(vport.getViewSize());
 
         scrollOffset.translate(dx, dy);
         constrainBounds(scrollOffset);

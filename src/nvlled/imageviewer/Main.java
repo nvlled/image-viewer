@@ -14,9 +14,9 @@ public class Main {
         SwingUtilities.invokeAndWait(new Runnable() {
             public void run() {
                 try {
-                    imgViewer = new ImageViewer();
+                    imgViewer = new ImageViewer("images");
                 } catch (IOException e) {
-                    throw new RuntimeException("fuck you");
+                    throw new RuntimeException("censored message");
                 }
             }
         });
