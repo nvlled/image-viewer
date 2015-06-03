@@ -4,53 +4,128 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.*;
+import static javax.swing.Action.*;
 
 public class ViewerActions {
     ImageViewer imageViewer;
 
-    Action openFile =  new AbstractAction() {
-        @Override
-        public Object getValue(String key) {
-            if (key == Action.NAME)
-                return "Open file or directory";
-            return super.getValue(key);
-        }
+    public ViewerActions(ImageViewer viewer) {
+        imageViewer = viewer;
+    }
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JFileChooser chooser = new JFileChooser(".");
-            chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-            int choice = chooser.showOpenDialog(imageViewer);
-            if (choice == JFileChooser.APPROVE_OPTION) {
-                File file = chooser.getSelectedFile();
-                try {
-                    if (file.isDirectory()) {
-                        imageViewer.openDirectory(file);
-                    } else {
-                        imageViewer.openFile(file.getAbsolutePath());
+    Action exit = new Abstraction(
+        new ActionProps()
+            .property(NAME, "Exit")
+            .property(SMALL_ICON, new ImageIcon("icons/exit.png"))
+            ,
+        new ActionListener() {
+            // teh bloat is inevitable
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        }
+    );
+
+    Action prevImage = new Abstraction(
+        new ActionProps()
+            .property(NAME, "Previous Image")
+            .property(SMALL_ICON, new ImageIcon("icons/prev-image.png"))
+            ,
+        new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) { imageViewer.prevImage(); }
+        }
+    );
+
+    Action nextImage = new Abstraction(
+        new ActionProps()
+            .property(NAME, "Next Image")
+            .property(SMALL_ICON, new ImageIcon("icons/next-image.png"))
+            ,
+        new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) { imageViewer.nextImage(); }
+        }
+    );
+
+    Action zoomOut = new Abstraction(
+        new ActionProps()
+            .property(NAME, "Zoom-in")
+            .property(SMALL_ICON, new ImageIcon("icons/zoom-out.png"))
+            ,
+        new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) { imageViewer.zoomOut(); }
+        }
+    );
+
+    Action zoomIn = new Abstraction(
+        new ActionProps()
+            .property(NAME, "Zoom-out")
+            .property(SMALL_ICON, new ImageIcon("icons/zoom-in.png"))
+            ,
+        new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) { imageViewer.zoomIn(); }
+        }
+    );
+
+    Action openFile = new Abstraction(
+        new ActionProps()
+            .property(NAME, "Open file or directory")
+            .property(SMALL_ICON, new ImageIcon("icons/open-file.png"))
+            ,
+        new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser(".");
+                chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                int choice = chooser.showOpenDialog(imageViewer);
+                if (choice == JFileChooser.APPROVE_OPTION) {
+                    File file = chooser.getSelectedFile();
+                    try {
+                        if (file.isDirectory()) {
+                            imageViewer.openDirectory(file);
+                        } else {
+                            imageViewer.openFile(file.getAbsolutePath());
+                        }
+                    } catch (IOException err) {
+                        JOptionPane.showMessageDialog(imageViewer, "nope");
                     }
-                } catch (IOException err) {
-                    JOptionPane.showMessageDialog(imageViewer, "nope");
                 }
             }
         }
-    };
+    );
 
-    Action exit =  new AbstractAction() {
+    class Abstraction extends AbstractAction {
+        ActionProps properties;
+        ActionListener handler;
+
+        public Abstraction(ActionProps props, ActionListener al) {
+            properties = props;
+            handler = al;
+        }
+
         @Override
         public Object getValue(String key) {
-            if (key == Action.NAME)
-                return "Exit";
+            Object val = properties.get(key);
+            if (val != null)
+                return val;
             return super.getValue(key);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.exit(0);
+            handler.actionPerformed(e);
         }
-    };
+    }
 
-    public ViewerActions(ImageViewer viewer) {
-        imageViewer = viewer;
+    class ActionProps extends HashMap<String, Object> {
+        public ActionProps property(String key, Object value) {
+            put(key, value);
+            return this;
+        }
     }
 }
