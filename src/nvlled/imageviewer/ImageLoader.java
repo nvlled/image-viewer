@@ -32,13 +32,15 @@ public class ImageLoader {
                         break;
                     } catch (IOException e) {
                         /* ignore */
+                    } catch (InvalidImage e) {
+                        /* ignore */
                     }
                 }
             }
         });
     }
 
-    public Image load(String filename) throws IOException {
+    public Image load(String filename) throws IOException, InvalidImage {
         Image image = cache.get(filename);
         if (image == null) {
             image = readImage(filename);
@@ -46,10 +48,16 @@ public class ImageLoader {
         return image;
     }
 
-    private Image readImage(String filename) throws IOException {
+    private Image readImage(String filename)
+        throws IOException, InvalidImage {
         Image image = cache.get(filename);
         if (image == null) {
             image = ImageIO.read(new File(filename));
+
+            if (image == null) {
+                throw new InvalidImage();
+            }
+
             System.out.println("read image " + filename);
             cache.put(filename, image);
             filenames.add(filename);
@@ -64,5 +72,11 @@ public class ImageLoader {
 
     public void preload(String filename) {
         loadQueue.add(filename);
+    }
+
+    public static class InvalidImage extends Exception {
+        public InvalidImage() {
+            super("File is not a valid image");
+        }
     }
 }

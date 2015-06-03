@@ -23,7 +23,6 @@ public class ImageViewer extends JFrame {
     int scrollStep = DEFAULT_SCROLL_STEP;
     private int imgIndex = 0;
 
-    private IOException lastError;
     private ImageLoader imageLoader;
 
     public ImageViewer(String imageDir) throws IOException {
@@ -92,19 +91,34 @@ public class ImageViewer extends JFrame {
     }
 
     public boolean loadImage(int index) {
+        Exception lastError = null;
         try {
             setStatusMessage("loading image...");
-            Image img = imageLoader.load(getFilename(index));
-            imageLoader.preload(getFilename(index-1));
-            imageLoader.preload(getFilename(index+1));
+            String filename = getFilename(index);
+            if (filename == "") {
+                lastError = new Exception("No image found");
+            } else {
+                Image img = imageLoader.load(filename);
+                imageLoader.preload(getFilename(index-1));
+                imageLoader.preload(getFilename(index+1));
 
-            setImage(img);
-            clearStatusMessage();
+                setImage(img);
+                clearStatusMessage();
+            }
+        } catch (ImageLoader.InvalidImage e) {
+            lastError = e;
         } catch (IOException e) {
             lastError = e;
-            setStatusMessage(getFilename(index) + ": " + e.getMessage());
+        }
+
+        if (lastError != null) {
+            setImage(null);
+            String msg = lastError.getMessage();
+            setStatusMessage("Image read failed: " + msg);
+            JOptionPane.showMessageDialog(this, msg);
             return false;
         }
+
         return true;
     }
 
