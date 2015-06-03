@@ -37,7 +37,10 @@ public class ImageViewer extends JFrame {
         add(scrollPane, BorderLayout.CENTER);
         add(statusMessage, BorderLayout.SOUTH);
 
-        setupMenuBar();
+        ViewerActions actions = new ViewerActions(this);
+
+        setupToolBar(actions);
+        setupMenuBar(actions);
 
         openDirectory(imageDir);
     }
@@ -64,9 +67,17 @@ public class ImageViewer extends JFrame {
         openDirectory(file);
     }
 
-    private void setupMenuBar() {
-        ViewerActions actions = new ViewerActions(this);
+    private void setupToolBar(ViewerActions actions) {
+        JToolBar bar = new JToolBar();
+        bar.add(actions.openFile);
+        bar.add(actions.prevImage);
+        bar.add(actions.nextImage);
+        bar.add(actions.zoomOut);
+        bar.add(actions.zoomIn);
+        add(bar, BorderLayout.NORTH);
+    }
 
+    private void setupMenuBar(ViewerActions actions) {
         JMenuBar mbar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(actions.openFile);
@@ -90,6 +101,7 @@ public class ImageViewer extends JFrame {
         return "";
     }
 
+    // TODO: spawn a new thread to avoid blocking the event queue
     public boolean loadImage(int index) {
         Exception lastError = null;
         try {

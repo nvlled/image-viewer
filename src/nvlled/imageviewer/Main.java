@@ -29,6 +29,9 @@ public class Main {
                 Dimension screen = getScreenSize();
                 imgViewer.setSize((int) screen.getWidth()*3/4, (int) screen.getHeight()*3/4);
 
+                Toolkit kit = Toolkit.getDefaultToolkit();
+                imgViewer.setIconImage(kit.getImage("icons/logo.png"));
+
                 imgViewer.setLocationByPlatform(true);
                 imgViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 imgViewer.setVisible(true);
