@@ -33,9 +33,15 @@ public class Main {
                 imgViewer.setLocationByPlatform(true);
                 imgViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 imgViewer.setVisible(true);
-
             }
         });
-        imgViewer.openDirectory("images/");
+        if (args.length >= 1) {
+            System.out.println(args[0]);
+            if (new File(args[0]).isDirectory()) {
+                imgViewer.openDirectory(args[0]);
+            } else {
+                imgViewer.openFile(args[0]);
+            }
+        }
     }
 }
