@@ -179,6 +179,10 @@ public class ImageViewer extends JFrame {
 
     public void setImage(Image img) {
         currentImage.setImage(img);
+        redraw();
+    }
+
+    public void redraw() {
         scrollPane.revalidate();
         scrollPane.repaint();
     }
@@ -203,16 +207,14 @@ public class ImageViewer extends JFrame {
     public void zoomIn() {
         if (currentImage != null) {
             currentImage.zoomIn();
-            currentImage.revalidate();
-            scrollPane.repaint();
+            redraw();
         }
     }
 
     public void zoomOut() {
         if (currentImage != null) {
             currentImage.zoomOut();
-            currentImage.revalidate();
-            scrollPane.repaint();
+            redraw();
         }
     }
 

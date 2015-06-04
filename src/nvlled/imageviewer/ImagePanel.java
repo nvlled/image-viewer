@@ -12,12 +12,7 @@ public class ImagePanel extends JPanel {
     Image image;
     int width = 0;
     int height = 0;
-    Dimension dimension;
 
-
-    public ImagePanel() {
-        dimension = new Dimension();
-    }
 
     public ImagePanel(Image img) {
         setImage(img);
@@ -29,8 +24,7 @@ public class ImagePanel extends JPanel {
         if (image != null) {
             width = image.getWidth(null)+1;
             height = image.getHeight(null)+1;
-            dimension = new Dimension(width, height);
-            setPreferredSize(dimension);
+            updatePreferredSize();
         }
     }
 
@@ -49,7 +43,11 @@ public class ImagePanel extends JPanel {
         }
         int w = getWidth();
         int h = getHeight();
-        dimension.setSize(w, h);
+        updatePreferredSize();
+    }
+
+    public void updatePreferredSize() {
+        setPreferredSize(new Dimension(getWidth(), getHeight()));
     }
 
     public void zoomIn()  { zoom(zoomStep); }

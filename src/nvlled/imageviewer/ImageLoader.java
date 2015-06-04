@@ -48,7 +48,7 @@ public class ImageLoader {
         return image;
     }
 
-    private Image readImage(String filename)
+    private synchronized Image readImage(String filename)
         throws IOException, InvalidImage {
         Image image = cache.get(filename);
         if (image == null) {
@@ -70,7 +70,7 @@ public class ImageLoader {
         return image;
     }
 
-    public void preload(String filename) {
+    public synchronized void preload(String filename) {
         loadQueue.add(filename);
     }
 
