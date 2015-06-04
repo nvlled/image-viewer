@@ -55,7 +55,7 @@ public class ImageViewer extends JFrame {
 
     public void openFile(String filename) throws IOException {
         imageDir = "";
-        imageLoader = new ImageLoader();
+        imageLoader.clear();
         filenames = new String[] { filename };
         loadCurrent();
     }
@@ -70,7 +70,7 @@ public class ImageViewer extends JFrame {
     }
 
     public void openDirectory(String imageDir) throws IOException {
-        imageLoader = new ImageLoader();
+        imageLoader.clear();
         File file = new File(imageDir);
         openDirectory(file);
     }

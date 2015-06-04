@@ -20,6 +20,12 @@ public class ImageLoader {
         startLoader();
     }
 
+    public void clear() {
+        cache.clear();
+        loadQueue.clear();
+        filenames.clear();
+    }
+
     private void startLoader() {
         Executor exec = Executors.newCachedThreadPool();
         exec.execute(new Runnable() {
