@@ -82,6 +82,7 @@ public class ViewerActions {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser(".");
                 chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                // TODO: filter files to images and directories
                 int choice = chooser.showOpenDialog(imageViewer);
                 if (choice == JFileChooser.APPROVE_OPTION) {
                     File file = chooser.getSelectedFile();

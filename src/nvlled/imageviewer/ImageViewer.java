@@ -8,6 +8,7 @@ import java.nio.file.FileSystems;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.util.regex.*;
 import java.nio.file.Paths;
+import java.util.concurrent.*;
 
 public class ImageViewer extends JFrame {
     private static final int DEFAULT_SCROLL_STEP = 50;
@@ -25,7 +26,11 @@ public class ImageViewer extends JFrame {
 
     private ImageLoader imageLoader;
 
+    private Executor exec;
+
     public ImageViewer(String imageDir) {
+        exec = Executors.newSingleThreadExecutor();
+
         currentImage = new ImagePanel();
         scrollPane = new JScrollPane(currentImage);
         JViewport vport = scrollPane.getViewport();
@@ -137,37 +142,38 @@ public class ImageViewer extends JFrame {
         return "";
     }
 
-    // TODO: spawn a new thread to avoid blocking the event queue
-    public boolean loadImage(int index) {
-        Exception lastError = null;
-        try {
-            setStatusMessage("loading image...");
-            String filename = getFilename(index);
-            if (filename == "") {
-                lastError = new Exception("No image found");
-            } else {
-                Image img = imageLoader.load(filename);
-                imageLoader.preload(getFilename(index-1));
-                imageLoader.preload(getFilename(index+1));
+    public void loadImage(final int index) {
+        final JFrame that = this;
+        exec.execute(new Runnable() {
+            public void run() {
+                Exception lastError = null;
+                try {
+                    setStatusMessage("loading image...");
+                    String filename = getFilename(index);
+                    if (filename == "") {
+                        lastError = new Exception("No image found");
+                    } else {
+                        Image img = imageLoader.load(filename);
+                        imageLoader.preload(getFilename(index-1));
+                        imageLoader.preload(getFilename(index+1));
 
-                setImage(img);
-                clearStatusMessage();
+                        setImage(img);
+                        clearStatusMessage();
+                    }
+                } catch (ImageLoader.InvalidImage e) {
+                    lastError = e;
+                } catch (IOException e) {
+                    lastError = e;
+                }
+
+                if (lastError != null) {
+                    setImage(null);
+                    String msg = lastError.getMessage();
+                    setStatusMessage("Image read failed: " + msg);
+                    JOptionPane.showMessageDialog(that, msg);
+                }
             }
-        } catch (ImageLoader.InvalidImage e) {
-            lastError = e;
-        } catch (IOException e) {
-            lastError = e;
-        }
-
-        if (lastError != null) {
-            setImage(null);
-            String msg = lastError.getMessage();
-            setStatusMessage("Image read failed: " + msg);
-            JOptionPane.showMessageDialog(this, msg);
-            return false;
-        }
-
-        return true;
+        });
     }
 
     private void setStatusMessage(String msg) {

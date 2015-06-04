@@ -13,6 +13,7 @@ public class ImagePanel extends JPanel {
     int width = 0;
     int height = 0;
 
+    public ImagePanel() { }
 
     public ImagePanel(Image img) {
         setImage(img);
