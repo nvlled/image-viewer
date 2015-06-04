@@ -25,7 +25,7 @@ public class ImageViewer extends JFrame {
 
     private ImageLoader imageLoader;
 
-    public ImageViewer(String imageDir) throws IOException {
+    public ImageViewer(String imageDir) {
         currentImage = new ImagePanel();
         scrollPane = new JScrollPane(currentImage);
         JViewport vport = scrollPane.getViewport();
@@ -39,10 +39,13 @@ public class ImageViewer extends JFrame {
 
         ViewerActions actions = new ViewerActions(this);
 
+        setupInput(actions);
         setupToolBar(actions);
         setupMenuBar(actions);
 
-        openDirectory(imageDir);
+        imageDir = "";
+        imageLoader = new ImageLoader();
+        filenames = new String[] {};
     }
 
     public void openFile(String filename) throws IOException {
@@ -65,6 +68,39 @@ public class ImageViewer extends JFrame {
         imageLoader = new ImageLoader();
         File file = new File(imageDir);
         openDirectory(file);
+    }
+
+    private void setupInput(ViewerActions actions) {
+        InputMap imap = currentImage.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap amap = currentImage.getActionMap();
+
+        // tuples would be nice
+        Object[][] entries = new Object[][] {
+            new Object[]{"typed n", "viewer.next", actions.nextImage},
+            new Object[]{"SPACE", "viewer.next", actions.nextImage},
+            new Object[]{"typed p", "viewer.prev", actions.prevImage},
+            new Object[]{"typed -", "viewer.zoomOut", actions.zoomOut},
+            new Object[]{"typed =", "viewer.zoomIn", actions.zoomIn},
+            new Object[]{"typed +", "viewer.zoomIn", actions.zoomIn},
+
+            new Object[]{"typed k", "viewer.scrollUp", actions.scrollUp},
+            new Object[]{"typed j", "viewer.scrollDown", actions.scrollDown},
+            new Object[]{"typed h", "viewer.scrollLeft", actions.scrollLeft},
+            new Object[]{"typed l", "viewer.scrollRight", actions.scrollRight},
+
+            new Object[]{"released UP", "viewer.scrollUp", actions.scrollUp},
+            new Object[]{"released DOWN", "viewer.scrollDown", actions.scrollDown},
+            new Object[]{"released LEFT", "viewer.scrollLeft", actions.scrollLeft},
+            new Object[]{"released RIGHT", "viewer.scrollRight", actions.scrollRight},
+        };
+
+        for (Object[] entry: entries) {
+            String key = (String) entry[0];
+            String name = (String) entry[1];
+
+            imap.put(KeyStroke.getKeyStroke(key), name);
+            amap.put(name, (Action) entry[2]);
+        }
     }
 
     private void setupToolBar(ViewerActions actions) {

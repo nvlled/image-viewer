@@ -99,6 +99,38 @@ public class ViewerActions {
         }
     );
 
+    Action scrollUp = new Abstraction(
+        new ActionProps() ,
+        new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) { imageViewer.scrollUp(); }
+        }
+    );
+
+    Action scrollDown = new Abstraction(
+        new ActionProps() ,
+        new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) { imageViewer.scrollDown(); }
+        }
+    );
+
+    Action scrollLeft = new Abstraction(
+        new ActionProps() ,
+        new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) { imageViewer.scrollLeft(); }
+        }
+    );
+
+    Action scrollRight = new Abstraction(
+        new ActionProps() ,
+        new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) { imageViewer.scrollRight(); }
+        }
+    );
+
     class Abstraction extends AbstractAction {
         ActionProps properties;
         ActionListener handler;
