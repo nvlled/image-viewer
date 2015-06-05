@@ -52,8 +52,15 @@ public class ImageViewer extends JFrame {
     }
 
     public void openFile(String filename) throws IOException {
-        imageLoader.clear();
-        filenames = new String[] { filename };
+        File absFile = new File(filename).getAbsoluteFile();
+        String dir = absFile.getParent();
+
+        setDirectoryFile(new File(dir));
+
+        int i = Arrays.asList(filenames).indexOf(absFile.toString());
+        if (i >= 0) {
+            imgIndex = i;
+        }
         loadCurrent();
     }
 
@@ -61,15 +68,19 @@ public class ImageViewer extends JFrame {
         if (!file.isDirectory()) {
             throw new IOException(file.toString() + " is not a directory");
         }
-        filenames = listImages(file);
+        setDirectoryFile(file);
         loadCurrent();
-        imgIndex = 0;
     }
 
     public void openDirectory(String imageDir) throws IOException {
-        imageLoader.clear();
         File file = new File(imageDir);
         openDirectory(file);
+    }
+
+    private void setDirectoryFile(File file) {
+        imageLoader.clear();
+        filenames = listImages(file);
+        imgIndex = 0;
     }
 
     private void setupInput(ViewerActions actions) {
