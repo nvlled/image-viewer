@@ -13,7 +13,6 @@ import java.util.concurrent.*;
 public class ImageViewer extends JFrame {
     private static final int DEFAULT_SCROLL_STEP = 50;
 
-    private String imageDir;
     private String[] filenames;
 
     private Point scrollOffset;
@@ -28,7 +27,7 @@ public class ImageViewer extends JFrame {
 
     private Executor exec;
 
-    public ImageViewer(String imageDir) {
+    public ImageViewer() {
         exec = Executors.newSingleThreadExecutor();
 
         currentImage = new ImagePanel();
@@ -48,13 +47,11 @@ public class ImageViewer extends JFrame {
         setupToolBar(actions);
         setupMenuBar(actions);
 
-        imageDir = "";
         imageLoader = new ImageLoader();
         filenames = new String[] {};
     }
 
     public void openFile(String filename) throws IOException {
-        imageDir = "";
         imageLoader.clear();
         filenames = new String[] { filename };
         loadCurrent();
@@ -62,11 +59,11 @@ public class ImageViewer extends JFrame {
 
     public void openDirectory(File file) throws IOException {
         if (!file.isDirectory()) {
-            throw new IOException(imageDir + " is not a directory");
+            throw new IOException(file.toString() + " is not a directory");
         }
-        this.imageDir = file.getAbsolutePath();
         filenames = listImages(file);
         loadCurrent();
+        imgIndex = 0;
     }
 
     public void openDirectory(String imageDir) throws IOException {
@@ -127,17 +124,13 @@ public class ImageViewer extends JFrame {
         setJMenuBar(mbar);
     }
 
-    public ImageViewer() throws IOException {
-        this(".");
-    }
-
     public void loadCurrent() {
         loadImage(imgIndex);
     }
 
     public String getFilename(int index) {
         if (index >= 0 && index < filenames.length) {
-            return Paths.get(imageDir, filenames[index]).toString();
+            return filenames[index];
         }
         return "";
     }
@@ -267,8 +260,8 @@ public class ImageViewer extends JFrame {
         });
         String[] filenames = new String[files.length];
         for (int i = 0; i < files.length; i++) {
-            System.out.println(">" + files[i].getName());
-            filenames[i] = files[i].getName();
+            System.out.println(">" + files[i].toString());
+            filenames[i] = files[i].getAbsolutePath();
         }
 
         return filenames;

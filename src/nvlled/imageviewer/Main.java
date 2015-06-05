@@ -18,11 +18,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         SwingUtilities.invokeAndWait(new Runnable() {
             public void run() {
-                try {
-                    imgViewer = new ImageViewer();
-                } catch (IOException e) {
-                    throw new RuntimeException("censored message");
-                }
+                imgViewer = new ImageViewer();
 
                 Dimension screen = getScreenSize();
                 imgViewer.setSize((int) screen.getWidth()*3/4, (int) screen.getHeight()*3/4);
